@@ -3,4 +3,6 @@
 struct Rack{
     //cantidad de CPUS
     int cpus;
+    //descripcion de los CPUS
+    cpu model;
 };
