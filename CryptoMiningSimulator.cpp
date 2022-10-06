@@ -1,9 +1,11 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <iostream>
+#include "Rack.cpp"
+#include "Cpu.cpp"
+void* RackWorking (void* args){
 
-//estructura referente al Rack
-struct  Rack
-{
-    
-};
+}
+void* CpuProcessor (void* args){
+
+}
