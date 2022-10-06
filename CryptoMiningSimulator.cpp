@@ -3,26 +3,37 @@
 #include <iostream>
 #include <cstdlib>
 #include "Rack.cpp"
-#include "Cpu.cpp"
+
 
 using namespace std;
 //Variables de meta y cantidad actual de monedas
 double goal;
 double current = 0.0;
 //variable del precio unitario de la moneda "DASHCOIN"
-double DashPrice = 0.000001;
+double DashPrice = 0.01000;
 //funcion encargada de variar el precio de la moneda 
 void* DataFluctiation (void* data){
-    while(true){
+    int i = 0;
+    while(i < 10){
         int random = rand()%1000;
-        double fluctuation = random/1000.0;
+        double fluctuation = random/100000.0;
+        
         int action = rand()%2;
+        
         switch(action){
-            case 0: DashPrice -= fluctuation;
-            case 1: DashPrice += fluctuation;
+            case 0: 
+            
+            DashPrice -= fluctuation;
+            if (DashPrice < 0 ){
+                DashPrice = fluctuation;
+            } 
+            break;
+            case 1: 
+            DashPrice += fluctuation;
+            break;
         }
-        //just for testing: 
-        cout << "DashPrice: " << DashPrice << endl;
+        cout <<"DashPrice: " << DashPrice << endl;
+        i++;
         sleep(1); //esperar un segundo antes de variar el precio
     }
 }
@@ -54,6 +65,7 @@ int main(){
     //crear el hilo que fluctua los precios y ejecutarlo
     pthread_t StockValue;
     pthread_create(&StockValue, NULL, DataFluctiation, 0);
+    pthread_join(StockValue, NULL);
     //crear los hilos de los racks
     pthread_t Racks[racks];
     for(int i = 0; i < racks; i++){
