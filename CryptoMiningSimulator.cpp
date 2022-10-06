@@ -38,7 +38,17 @@ void* DataFluctiation (void* data){
     }
 }
 void* RackWorking (void* args){
-    
+    Rack* rack = (Rack*)args;
+    double subtotal = 0.0;
+    //Hilos que representan cada cpu
+    pthread_t CPUS[rack -> cpus];
+    //crear los CPUS y generar sus cargas de trabajo
+    cpu CPUSdata[rack -> cpus] = {rack -> model};
+    for(int i = 0; i < rack->cpus; i++){
+        CPUSdata[i].data.min = rand()%100;
+        CPUSdata[i].data.max = rand()%10000; 
+        pthread_create(&CPUS[i],0,CpuProcessor, (void*)&CPUS[i]); //está como plahe holder actualizar después del commit de GUS
+    }
 
 }
 void* CpuProcessor (void* args){
