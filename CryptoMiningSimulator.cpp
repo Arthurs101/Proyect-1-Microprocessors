@@ -43,7 +43,7 @@ void* RackWorking (void* args){
     //Hilos que representan cada cpu
     pthread_t CPUS[rack -> cpus];
     //crear los CPUS y generar sus cargas de trabajo
-    cpu CPUSdata[rack -> cpus] = {rack -> model};
+    CPU CPUSdata[rack -> cpus] = {rack -> model};
     for(int i = 0; i < rack->cpus; i++){
         CPUSdata[i].data.min = rand()%100;
         CPUSdata[i].data.max = rand()%10000; 
@@ -70,7 +70,7 @@ int main(){
         cout<<"Cuantos CPUS tiene el Rack?"<<endl;
         cin >> racksincluidos[i].cpus;
         cout<<"Cuantos hilos poseen esos CPUS?"<<endl;
-        cin >> racksincluidos[i].model.threads;
+        cin >> racksincluidos[i].model.cores;
     } 
     //crear el hilo que fluctua los precios y ejecutarlo
     pthread_t StockValue;
