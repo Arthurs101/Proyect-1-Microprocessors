@@ -8,19 +8,20 @@
  * @brief espacio de variables globales
  */ 
 using namespace std;
+//bandera
+boolean emulate = true; 
 //Variables de meta y cantidad actual de monedas
 double goal;
 double current = 0.0;
 //variable del precio unitario de la moneda "DASHCOIN"
-double DashPrice = 0.01000;
+double DashPrice = 0.1000;
 //barrera empleada por los racks
 pthread_barrier_t barrier;
 pthread_mutex_t Racklock = PTHREAD_MUTEX_INITIALIZER;
 
 //funcion encargada de variar el precio de la moneda 
 void* DataFluctiation (void* data){
-    int i = 0;
-    while(i < 10){
+    while(emulate){
         int random = rand()%1000;
         double fluctuation = random/100000.0;
         
@@ -41,9 +42,9 @@ void* DataFluctiation (void* data){
         pthread_mutex_lock(&Racklock);
         cout <<"DashPrice: " << DashPrice << endl;
         pthread_mutex_unlock(&Racklock);
-        i++;
-        sleep(1); //esperar un segundo antes de variar el precio
+        sleep(2); //esperar un segundo antes de variar el precio
     }
+    pthread_exit(0);
 }
 void* RackWorking (void* args){
     boolean RackIsOnline = true;
@@ -119,6 +120,7 @@ int main(){
     for(int i = 0; i < racks; i++){
         pthread_join(Racks[i],0);
     }
+    emulate = false;
 
     pthread_barrier_destroy(&barrier);
     cout <<"se ha terminado el minado de datos, se ha alcanzado el objetivo de " << goal << endl;
