@@ -108,3 +108,8 @@ bool isPrime(int n){
     return is_prime;
 }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> WithPriceFlcutuations
