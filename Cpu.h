@@ -99,6 +99,7 @@ void* cpuFunction(void* args){
     }
     
     return (void *)totalSum;
+    pthread_exit(0);
 }
 
   

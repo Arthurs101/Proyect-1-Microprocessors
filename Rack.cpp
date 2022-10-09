@@ -1,4 +1,4 @@
-#include "CPU.cpp"
+#include "Cpu.h"
 //Estructura Referente al Rack
 struct Rack{
     //cantidad de CPUS
