@@ -1,8 +1,12 @@
 #include <iostream>
 #include <pthread.h>
+/**
+ * @brief Espacio para variables de la 'clase' de CPU
+ * 
+ */
 using namespace std;
-
-
+pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // mutex
+int totalSum; //total de la suma de primos
 /**
  * @brief Estructura que representa los datos necesitados por cada Core
  */
@@ -19,68 +23,6 @@ struct CPU{
     int cores;
     DataToWork data;
 };
-
-
-/**
- * @brief Funcion que genera los cores 
- * @param args estructura CPU
- * @return void* Suma de todos los numeros primos
- */
-void* cpuFunction(void* args){
-    CPU* param = (CPU*) args;
-    DataToWork dataForCores = param->data;
-    int threadNum = param->cores;
-
-    pthread_t threadId;
-    pthread_attr_t attr;
-
-    void *exit_value;
-
-    //Arreglo con los numeros primos
-    int sumaPrimos[threadNum]; 
-
-    pthread_attr_init(&attr);
-
-    for(int i = 0; i < threadNum; i++){
-        pthread_create(&threadId, &attr, &coreFunction, (void*)&dataForCores);
-    }
-
-    for(int i = 0; i < threadNum; i++){
-        pthread_join(threadId, &exit_value);
-        sumaPrimos[i] = (int)exit_value;
-    }    
-
-    int totalSum = 0;
-    for(int i = 0; i < threadNum; i++){
-        totalSum += sumaPrimos[i];
-    }    
-
-    
-
-}
-
-/**
- * @brief La funcion computa los numeros primos en un rango y los suma, la funcion devuelve
- * la suma de estos en una variable
- * 
- * @param args estructura de tipo DataToWork
- * @return void* 
- */
-void* coreFunction(void* args){
-    DataToWork* data = (DataToWork*) args;
-    int begin = data->min;
-    int end = data->max;
-
-    int sum = 0;
-    for(int i = begin ; i <= end ; i++){
-        if (isPrime(i)){
-            sum += i;
-        }
-    }
-
-    return (void*) sum;
-}  
-
 
 /**
  * @brief Funcion que  determina si  un numero es primo o no 
@@ -107,6 +49,58 @@ bool isPrime(int n){
 
     return is_prime;
 }
+/**
+ * @brief La funcion computa los numeros primos en un rango y los suma, la funcion devuelve
+ * la suma de estos en una variable
+ * 
+ * @param args estructura de tipo DataToWork
+ * @return void* 
+ */
+void* coreFunction(void* args){
+    DataToWork* data = (DataToWork*) args;
+    int begin = data->min;
+    int end = data->max;
+
+    int sum = 0;
+    for(int i = begin ; i <= end ; i++){
+        if (isPrime(i)){
+            sum += i;
+        }
+    }
+
+    pthread_mutex_lock(&lock);
+    totalSum += sum;
+    pthread_mutex_unlock(&lock);
+    pthread_exit(0);
+}
 
 
+/**
+ * @brief Funcion que genera los cores 
+ * @param args estructura CPU
+ * @return void* Suma de todos los numeros primos
+ */
+void* cpuFunction(void* args){
+    CPU* param = (CPU*) args;
+    DataToWork dataForCores = param->data;
+    int threadNum = param->cores;
+
+    pthread_t threadId;
+    pthread_attr_t attr;
+    
+    
+    pthread_attr_init(&attr);
+
+    for(int i = 0; i < threadNum; i++){
+        pthread_create(&threadId, &attr, &coreFunction, (void*)&dataForCores);
+    }
+    for (int i = 0; i < threadNum; i++){
+        pthread_join(threadId,0);
+    }
+    
+    return (void *)totalSum;
+    pthread_exit(0);
+}
+
+  
 

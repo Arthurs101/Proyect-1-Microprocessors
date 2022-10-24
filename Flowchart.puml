@@ -1,0 +1,66 @@
+@startuml
+start
+:solicitar la cantidad de monedas a minar;
+:solicitar la cantidad de rigs que posee;
+:solicitar la cantidad de Cpus por Rack;
+:Solicitar la cantidad de nucleos por cpu;
+:Crear el array de los Racks y asignarles sus propiedades correspondientes;
+note right
+se le asigna la cantidad de cpus que posee
+se le asigna su id
+esto mediante una estructura
+El cpu tambien es una estructura, posee de atributos id y la cantidad de cores que posee
+end note
+:crear el hilo de fluctuacion de precios;
+:crear el array de hilos para los Racks y ejecutarlos;
+fork
+note left
+estos pasos son correspondientes 
+al hilo de variacion de precio
+end note
+:crear un numero aleatorio de 0 a 1000;
+:obtener su modulo al dividirlo entre 10000;
+:numero aleatorio de 0 a 1;
+if (es 0 el aleatorio) then (true)
+:sumar al precio actual el valor del modulo 10000;
+else (false)
+:restar al precio actual el valor del modulo 10000;
+endif
+:sleep de 2 segundos;
+fork again
+note right
+proceso empleado por el rack
+end note
+:RackIsOn = true;
+repeat
+:crear el array de hilos segun la cantidad de cpus asignados;
+:asignarle a cada uno un limite inferior y superor aleatorio;
+fork
+:esperar a los cpus por medio de join;
+:obtenido el valor del cpu, multiplicarlo por el valor actual de la moneda;
+:sumar el producto al subtotal;
+fork again
+repeat
+note left
+proceso del CPU
+end note
+:determinar si un numero es primo;
+if(numero es primo) then (true)
+:sumar el numero al subtotal;
+endif
+repeat while ( inf <= numero actual <= superior)
+end fork
+:sumar su resultado al total de monedas producidas;
+:reninicar cuenta del rack;
+:esperar a los demás hilos por medio de barrera;
+if (monedas actuales >= meta a producir) then (true)
+:RackIsOn = false;
+endif
+repeat while (RackIsOn)
+end fork
+:Indicarle al usuario que ha terminado el proceso;
+if(monedas actuales > meta) then (true)
+:Mostrar la ganancia;
+endif
+end
+@enduml
