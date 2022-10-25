@@ -23,7 +23,7 @@ pthread_mutex_t Racklock = PTHREAD_MUTEX_INITIALIZER;
 void* DataFluctiation (void* data){
     while(emulate){
         int random = rand()%1000;
-        double fluctuation = random/100000.0;
+        double fluctuation = random/10000.0;
         
         int action = rand()%2;
         
@@ -40,7 +40,9 @@ void* DataFluctiation (void* data){
             break;
         }
         pthread_mutex_lock(&Racklock);
-        cout <<"DashPrice: " << DashPrice << endl;
+        cout<<"-----------------------------------------------------"<<endl;
+        cout <<"System: !!New DashPrice: !! : " << DashPrice << endl;
+        cout<<"-----------------------------------------------------"<<endl;
         pthread_mutex_unlock(&Racklock);
         sleep(1);
     }
@@ -49,44 +51,51 @@ void* DataFluctiation (void* data){
 void* RackWorking (void* args){
     bool RackIsOnline = true;
     Rack* rack = (Rack*)args;
+    double coinsGenerated;
     //Hilos que representan cada cpu
     pthread_t CPUS[rack -> cpus];
     CPU CPUSdata[rack -> cpus] = {rack -> model} ;
     //crear los CPUS y generar sus cargas de trabajo
     pthread_mutex_lock(&Racklock);
-    cout << "El rack " << rack -> id << " Esta en Linea"<< endl;
+    cout << "!!System: Rack: " << rack -> id << "is now Online"<< endl;
     pthread_mutex_unlock(&Racklock);
     while(RackIsOnline){
         sleep(1);
         for(int i = 0; i < rack->cpus; i++){
-            CPUSdata[i].data.min = rand()%10;
-            CPUSdata[i].data.max = rand()%100; 
-            pthread_create(&CPUS[i],0,cpuFunction, (void*)&CPUSdata[i]); //está como plahe holder actualizar después del commit de GUS
+            CPUSdata[i].data.min = 1;
+            CPUSdata[i].data.max = rand()%1001; 
+            CPUSdata[i].cores = rack ->model.cores;
+            while( CPUSdata[i].data.max == 0){ //evitar que sea 0
+                CPUSdata[i].data.max = rand()%1001; 
+            }
+            pthread_create(&CPUS[i],0,cpuFunction,(void*)&CPUSdata[i]); //está como plahe holder actualizar después del commit de GUS
         }
     //esperar los hilos y añadir al subtotal del rack 
         void *exit_value;
+        
         for(int i=0; i < rack->cpus ; i++){
             pthread_join(CPUS[i],&exit_value);
             //this is just for testing
-            double selling = DashPrice;
-            double produced = ((int)exit_value + 0.0)*selling;
-            double reducer = (rand()%101)/100.0;
-            rack -> CoinsGenerated += reducer*produced;
+            int* temp = ((int*)exit_value);
+            coinsGenerated = ((int)temp+0.0)*DashPrice;
+
         }
         pthread_mutex_lock(&Racklock);
-        //añadir el subtotal a lo producido
-        cout << "El rack " << rack -> id << "ha generado: " << rack -> CoinsGenerated << endl;
-        current += rack-> CoinsGenerated;
-        cout << "monedas actuales: "<<current << endl;
+        cout<<"- - - - - - - - - - - - - - - - - - - - - - - - - - -"<<endl;
+        current += coinsGenerated;
+        cout<< "System: Rack No. "<<rack -> id << " Generated:  " << coinsGenerated << endl;
+        cout<< "New Account Balance!!: " << current << "'- Coins'" << endl;
+        cout<<"- - - - - - - - - - - - - - - - - - - - - - - - - - -"<<endl;
         pthread_mutex_unlock(&Racklock);
-        rack -> CoinsGenerated = 0;
-        //esperar a los demás racks antes de realizar la comparacion
+        coinsGenerated = 0;
         pthread_barrier_wait(&barrier);
-        if(current >= goal){ //si ya se llegó o sobrepasó el límite, apagar el rack
+        if(current >= goal){
             RackIsOnline = false;
-            cout << "El rack " << rack -> id << "se ha apagado"<< endl;
         }
     }
+    pthread_mutex_lock(&Racklock);
+    cout << "!!System: Rack: " << rack -> id << " is now Offline"<< endl;
+    pthread_mutex_unlock(&Racklock);
     return 0;
 }
 

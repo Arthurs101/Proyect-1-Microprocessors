@@ -6,7 +6,7 @@
  */
 using namespace std;
 pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER; // mutex
-int totalSum; //total de la suma de primos
+
 /**
  * @brief Estructura que representa los datos necesitados por cada Core
  */
@@ -60,18 +60,13 @@ void* coreFunction(void* args){
     DataToWork* data = (DataToWork*) args;
     int begin = data->min;
     int end = data->max;
-
     int sum = 0;
     for(int i = begin ; i <= end ; i++){
         if (isPrime(i)){
             sum += i;
         }
     }
-
-    pthread_mutex_lock(&lock);
-    totalSum += sum;
-    pthread_mutex_unlock(&lock);
-    pthread_exit(0);
+    return (void *)sum;
 }
 
 
@@ -81,24 +76,48 @@ void* coreFunction(void* args){
  * @return void* Suma de todos los numeros primos
  */
 void* cpuFunction(void* args){
+    
     CPU* param = (CPU*) args;
-    DataToWork dataForCores = param->data;
+    DataToWork dataForCpu = param->data;
     int threadNum = param->cores;
 
-    pthread_t threadId;
+    pthread_t core[threadNum];
     pthread_attr_t attr;
     
-    
+    DataToWork dataForCores[threadNum];   
     pthread_attr_init(&attr);
-
+    int interval = dataForCpu.max / threadNum;
+    int limit = 1; //siempre inicia en 1 el intervalo, variable usada para configurar los limites de cada hilo
     for(int i = 0; i < threadNum; i++){
-        pthread_create(&threadId, &attr, &coreFunction, (void*)&dataForCores);
+        //configurar limite inferior
+        dataForCores[i].min = limit;
+        //configurar limite superior usando el intervalo por cada core
+        limit += interval;
+        // si se llega al ultimo hilo y aun no se llega al limite superior, asignarlo como limite superior
+        if(i == (threadNum - 1) && limit < dataForCpu.max){
+             dataForCores[i].max = dataForCpu.max; 
+        } else{
+             //si se sobrepasa el valor maximo, usarlo como el tope
+            if (limit > dataForCpu.max){
+                dataForCores[i].max = dataForCpu.max; 
+            } else{
+                //asignar el máximo
+            dataForCores[i].max= limit;
+            }
+        }
+        //mover en 1 el limite inferior para el proximo core
+        limit++;
+        pthread_create(&core[i], &attr, &coreFunction, (void*)&dataForCores[i]);
     }
+    void* result;
+    int totalSum = 0; //total de la suma de primos
     for (int i = 0; i < threadNum; i++){
-        pthread_join(threadId,0);
+        pthread_join(core[i],&result);
+        int* integer = (int*)result;
+        totalSum += (int)integer;
     }
-    
     return (void *)totalSum;
+    
     pthread_exit(0);
 }
 
