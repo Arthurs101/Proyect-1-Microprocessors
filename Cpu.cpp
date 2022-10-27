@@ -113,7 +113,7 @@ void* cpuFunction(void* args){
     int totalSum = 0; //total de la suma de primos
     for (int i = 0; i < threadNum; i++){
         pthread_join(core[i],&result);
-        int* integer = (int*)result;
+        int* integer = (int*)result; 
         totalSum += (int)integer;
     }
     return (void *)totalSum;

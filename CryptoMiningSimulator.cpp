@@ -77,7 +77,7 @@ void* RackWorking (void* args){
             pthread_join(CPUS[i],&exit_value);
             //this is just for testing
             int* temp = ((int*)exit_value);
-            coinsGenerated = ((int)temp+0.0)*DashPrice;
+            coinsGenerated += ((int)temp+0.0)*DashPrice;
 
         }
         pthread_mutex_lock(&Racklock);
