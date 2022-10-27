@@ -5,8 +5,6 @@ struct Rack{
     int cpus;
     //descripcion de los CPUS
     CPU model;
-    //monedas generadas por el Rack
-    double CoinsGenerated;
     //identificador del Rack
     int id;
 };
