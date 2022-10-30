@@ -54,7 +54,7 @@ void* RackWorking (void* args){
     double coinsGenerated;
     //Hilos que representan cada cpu
     pthread_t CPUS[rack -> cpus];
-    CPU CPUSdata[rack -> cpus] = {rack -> model} ;
+    CPU CPUSdata[rack -> cpus]  ;
     //crear los CPUS y generar sus cargas de trabajo
     pthread_mutex_lock(&Racklock);
     cout << "!!System: Rack: " << rack -> id << "is now Online"<< endl;

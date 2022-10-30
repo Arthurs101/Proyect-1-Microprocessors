@@ -44,11 +44,12 @@ repeat
 note left
 proceso del CPU
 end note
-:determinar si un numero es primo;
-if(numero es primo) then (true)
-:sumar el numero al subtotal;
-endif
-repeat while ( inf <= numero actual <= superior)
+:configurar intevalos de operación para los cores;
+:crear los cores;
+fork 
+:hola;
+end fork
+:devolver el valor de la suma;
 end fork
 :sumar su resultado al total de monedas producidas;
 :reninicar cuenta del rack;
